@@ -4,7 +4,7 @@ var beta   = 0.0;       // linear scaler
 var sigmaR = 0.9;       // middle gray range
 var gamma  = 1.2;       // saturation
 var maxPyramidNum = 50; // pyramid number (running slow when set large value) 
-var imagepath = 'dani_synagogue.png';
+var imagepath = 'img.png';
 
 // set kernel
 var kernelDown = new Mat();
@@ -65,7 +65,7 @@ function onImageLoad(){
 	var imgGray = imgRGB.rgb2gray();
 	// logarithm
 	for (var i = 0; i < imgGray.data.length; ++i) {
-		imgGray.data[i] = Math.log( imgGray.data[i] + 1 );
+		imgGray.data[i] = Math.log( imgGray.data[i] + 1.0 );
 	}
 
 	// local laplacian pyramid using fast approach (???)
@@ -81,10 +81,10 @@ function onImageLoad(){
 	var interV = maxV - minV;
 	for (var y = 0; y < imgRGB.rows; ++y) {
 		for (var x = 0; x < imgRGB.cols; ++x) {
-			var arr = [0, 0, 0];
+			var arr = [0.0, 0.0, 0.0];
 			for (var ch = 0; ch < 3; ++ch) {
 				arr[ch] = (result.get(y, x)[0] - minV);
-				arr[ch] += gamma * ( Math.log(imgRGB.get(y, x)[ch] + 1) - imgGray.get(y, x)[0] );
+				arr[ch] += gamma * ( Math.log(imgRGB.get(y, x)[ch] + 1.0) - imgGray.get(y, x)[0] );
 				arr[ch] /= interV;
 				arr[ch] = Math.exp(arr[ch]);
 			}

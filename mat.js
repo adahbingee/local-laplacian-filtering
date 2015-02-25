@@ -51,8 +51,8 @@ Mat.prototype.set = function(row, col, arr) {
 
 Mat.prototype.getMinMax = function() {
 	// find min , max value
-	var minV =  999999999;
-	var maxV = -999999999;
+	var minV =  999999999.0;
+	var maxV = -999999999.0;
 	for (var i = 0; i < this.data.length; ++i) {
 		var tmp = this.data[i];
 		if (tmp < minV) {
@@ -186,7 +186,7 @@ function createMat(rows, cols, channel) {
 	mat.cols = cols;
 	mat.data = new Array( rows*cols*channel );
 	for (var i = 0; i < mat.data.length; ++i) {
-		mat.data[i] = 0;
+		mat.data[i] = 0.0;
 	}
 	return mat;
 }
@@ -203,37 +203,40 @@ function filter2Dc1(matIn, matOut, kernel) {
 	var width   = matIn.cols;
 	var height  = matIn.rows; 
 	
+	var width2  = (width - 1) << 1;
+	var height2 = (height - 1) << 1;
+	
 	// kernel padding
 	var ksizeY  = kernel.rows >> 1;
 	var ksizeX  = kernel.cols >> 1;
 
+	var idx = 0;
 	for (var y = 0; y < height; y++) {
 		for (var x = 0; x < width; x++) {
-			var sum  = 0;
+			var sum  = 0.0;
 			var kIdx = 0;
 			
 			for (var yy = y - ksizeY; yy <= y + ksizeY; yy++) {
 				for (var xx = x - ksizeX; xx <= x + ksizeX; xx++) {
-					// border condition
+					// border condition (mirror)
 					var xxC = xx;
 					var yyC = yy;
-					if (xxC > width-1) { 
-						xxC = 2*(width-1)-xxC; 
+					if (xxC >= width) { 
+						xxC = width2 - xxC; 
 					} else if (xxC < 0) {
 						xxC = -xxC;
 					}
-					if (yyC > height-1) { 
-						yyC = 2*(height-1)-yyC; 
+					if (yyC >= height) { 
+						yyC = height2 - yyC; 
 					} else if (yyC < 0) { 
 						yyC = -yyC;
 					}
 					
-					sum += matIn.data[yyC * width + xxC] * kernel.data[kIdx];
-					kIdx++;
+					sum += matIn.data[yyC * width + xxC] * kernel.data[kIdx++];
 				}
 			}
 			
-			matOut.data[y * width + x] = sum;
+			matOut.data[idx++] = sum;
 		}
 	} // end of outer for
 	
@@ -247,42 +250,44 @@ function filter2D(matIn, matOut, kernel) {
 	var height  = matIn.rows; 
 	var channel = matIn.channel;
 	
+	var width2  = (width - 1) << 1;
+	var height2 = (height - 1) << 1;
+	
 	// kernel padding
 	var ksizeY  = kernel.rows >> 1;
 	var ksizeX  = kernel.cols >> 1;
 
+	var idx = 0;
 	for (var y = 0; y < height; y++) {
 		for (var x = 0; x < width; x++) {
-			var sum = [0, 0, 0, 0];
+			var sum = [0.0, 0.0, 0.0, 0.0];
 			var kIdx = 0;
 			
 			for (var yy = y - ksizeY; yy <= y + ksizeY; yy++) {
 				for (var xx = x - ksizeX; xx <= x + ksizeX; xx++) {
-					// border condition
+					// border condition (mirror)
 					var xxC = xx;
 					var yyC = yy;
-					if (xxC > width-1) { 
-						xxC = 2*(width-1)-xxC; 
+					if (xxC >= width) { 
+						xxC = width2 - xxC; 
 					} else if (xxC < 0) {
 						xxC = -xxC;
 					}
-					if (yyC > height-1) { 
-						yyC = 2*(height-1)-yyC;
+					if (yyC >= height) { 
+						yyC = height2 - yyC; 
 					} else if (yyC < 0) { 
 						yyC = -yyC;
 					}
 					
 					var pixIdx = channel * (yyC * width + xxC);
 					for (var i = 0; i < channel; ++i) {
-						sum[i] += matIn.data[pixIdx+i] * kernel.data[kIdx];
+						sum[i] += matIn.data[pixIdx+i] * kernel.data[kIdx++];
 					}
-					kIdx++;
 				}
 			}
 			
-			var pixIdx = channel * (y * width + x);
 			for (var i = 0; i < channel; ++i) {
-				matOut.data[pixIdx+i] = sum[i];
+				matOut.data[idx++] = sum[i];
 			}
 		}
 	} // end of outer for
