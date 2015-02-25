@@ -217,21 +217,23 @@ function filter2Dc1(matIn, matOut, kernel) {
 			var kIdx = 0;
 			
 			for (var yy = y - ksizeY; yy <= y + ksizeY; yy++) {
+				// border condition (mirror)
+				var yyC = yy;
+				if (yyC >= height) { 
+					yyC = height2 - yyC; 
+				} else if (yyC < 0) { 
+					yyC = -yyC;
+				}
+				
 				for (var xx = x - ksizeX; xx <= x + ksizeX; xx++) {
 					// border condition (mirror)
 					var xxC = xx;
-					var yyC = yy;
 					if (xxC >= width) { 
 						xxC = width2 - xxC; 
 					} else if (xxC < 0) {
 						xxC = -xxC;
 					}
-					if (yyC >= height) { 
-						yyC = height2 - yyC; 
-					} else if (yyC < 0) { 
-						yyC = -yyC;
-					}
-					
+
 					sum += matIn.data[yyC * width + xxC] * kernel.data[kIdx++];
 				}
 			}
@@ -264,19 +266,21 @@ function filter2D(matIn, matOut, kernel) {
 			var kIdx = 0;
 			
 			for (var yy = y - ksizeY; yy <= y + ksizeY; yy++) {
+				// border condition (mirror)
+				var yyC = yy;
+				if (yyC >= height) { 
+					yyC = height2 - yyC; 
+				} else if (yyC < 0) { 
+					yyC = -yyC;
+				}
+				
 				for (var xx = x - ksizeX; xx <= x + ksizeX; xx++) {
 					// border condition (mirror)
 					var xxC = xx;
-					var yyC = yy;
 					if (xxC >= width) { 
 						xxC = width2 - xxC; 
 					} else if (xxC < 0) {
 						xxC = -xxC;
-					}
-					if (yyC >= height) { 
-						yyC = height2 - yyC; 
-					} else if (yyC < 0) { 
-						yyC = -yyC;
 					}
 					
 					var pixIdx = channel * (yyC * width + xxC);
