@@ -8,26 +8,18 @@ function onWebGL( img ) {
 	gl = getWebGLContext(canvas);
 	if ( !gl ) return;
 	
-	// set texture
-	var texture = allocateTexture( img );
-	
 	// setup GLSL program
 	var program = createProgramFromScripts(gl, ["2d-vertex-shader", "2d-fragment-shader"]);
 	gl.useProgram(program);
+	
+	// set texture
+	var texture = allocateTexture( img );
 	
 	// allocate sprite vertex
 	setShderParam( program, img );
 	
 	// make a framebuffer
-	var fb = gl.createFramebuffer();
-	// make this the current frame buffer
-	gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-	// attach the texture to the framebuffer.
-	gl.framebufferTexture2D(
-		gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
-		gl.TEXTURE_2D, texture, 0);
-	// Unbind the framebuffer
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	var fb = allocateFrameBuffer( texture );
 
 	// Draw the rectangle.
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -71,6 +63,20 @@ function setShderParam( program, img ) {
 	
 	// set kernel
 	gl.uniform1fv(kernelLocation, kernelDown.data);
+}
+
+function allocateFrameBuffer( texture ) {
+	var fb = gl.createFramebuffer();
+	// make this the current frame buffer
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+	// attach the texture to the framebuffer.
+	gl.framebufferTexture2D(
+		gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
+		gl.TEXTURE_2D, texture, 0);
+	// Unbind the framebuffer
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	
+	return fb;
 }
 
 function allocateTexture( img ) {
