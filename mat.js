@@ -193,6 +193,44 @@ function clamp(value, min, max) {
 	return value;
 }
 
+// merge multi-mat array to single mat multi channel
+function merge( matArray ) {
+	var channel = matArray.length;
+	var rows    = matArray[0].rows;
+	var cols    = matArray[0].cols;
+	var total   = matArray[0].data.length;
+	mat = createMat(rows, cols, channel);
+	
+	var idx = 0;
+	for (var i = 0; i < total; ++i) {
+		for (var j = 0; j < channel; ++j) {
+			mat.data[idx++] = matArray[j].data[i];
+		}
+	}
+	
+	return mat;
+}
+
+// split multi channel to multi-mat array
+function split( mat ) {
+	var channel = mat.channel;
+	var rows    = mat.rows;
+	var cols    = mat.cols;
+	var total   = mat.total();
+	var matArray = new Array( channel );
+	for (var i = 0; i < channel; ++i) {
+		matArray[i] = new createMat(rows, cols, 1);
+	}
+	
+	for (var i = 0, i2 = 0; i < total; i+=channel, i2++) {
+		for (var j = 0; j < channel; ++j) {
+			matArray[j].data[i2] = mat.data[i+j];
+		}
+	}
+	
+	return matArray;
+}
+
 // for 1-channel image filtering
 function filter2Dc1(matIn, matOut, kernel) {
 	// image parameters

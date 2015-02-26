@@ -6,6 +6,7 @@
 		<script src="mat.js"></script>
 		<script src="webglfilter.js"></script>
 		<script src="main.js"></script>
+		
 		<!-- vertex shader -->
 		<script id="2d-vertex-shader" type="x-shader/x-vertex">
 		attribute vec2 a_position;
@@ -44,6 +45,28 @@
 
 		// the texCoords passed in from the vertex shader.
 		varying vec2 v_texCoord;
+		
+		/*
+		vec4 remap(vec4 pix, vec4 mean, vec4 alpha, vec4 beta, vec4 sigmaR) {
+			vec4 diffV = pix - mean;
+			vec4 magiV = abs(diffV);
+			vec4 signV = sign(diffV);
+			
+			vec4 tone = mean + signV * ( (magiV - sigmaR) * beta + sigmaR );
+			vec4 deti = mean + signV * pow( magiV / sigmaR, alpha ) * sigmaR;
+			
+			vec4 pixOut;
+			for (int i = 0; i < 4; ++i) {
+				if ( magiV[i] > sigmaR[i] ) {
+					pixOut[i] = tone[i];
+				} else {
+					pixOut[i] = deti[i];
+				}
+			}
+			
+			return pixOut;
+		}
+		*/
 
 		void main() {
 				vec2 onePixel = vec2(1.0, 1.0) / u_textureSize;

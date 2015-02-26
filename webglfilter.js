@@ -1,6 +1,6 @@
 var gl;
 
-function onWebGL( img ) {
+function glFilter2D( img, kernel ) {
 	// get renderer
 	var canvas = document.getElementById("webgl");
 	canvas.width  = img.cols;
@@ -16,7 +16,7 @@ function onWebGL( img ) {
 	var texture = allocateTexture( img );
 	
 	// allocate sprite vertex
-	setShderParam( program, img );
+	setShderParam( program, img, kernel );
 	
 	// make a framebuffer
 	var fb = allocateFrameBuffer( texture );
@@ -31,9 +31,15 @@ function onWebGL( img ) {
 	gl.readPixels(0, 0, img.cols, img.rows, gl.RGBA, gl.FLOAT, buf);
 	// Unbind the framebuffer
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	
+	var imgOut = new Mat();
+	imgOut.rows = img.rows;
+	imgOut.cols = img.cols;
+	imgOut.data = buf;
+	return imgOut;
 }
 
-function setShderParam( program, img ) {
+function setShderParam( program, img, kernel ) {
 	// look up where the vertex data needs to go.
 	var positionLocation    = gl.getAttribLocation(program, "a_position");
 	var texCoordLocation    = gl.getAttribLocation(program, "a_texCoord");
@@ -62,7 +68,7 @@ function setShderParam( program, img ) {
 	gl.uniform2f(textureSizeLocation, img.cols, img.rows);
 	
 	// set kernel
-	gl.uniform1fv(kernelLocation, kernelDown.data);
+	gl.uniform1fv(kernelLocation, kernel.data);
 }
 
 function allocateFrameBuffer( texture ) {
