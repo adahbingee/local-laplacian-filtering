@@ -70,8 +70,8 @@ function onImageLoad(){
 	
 	imgGray.normalize(0, 255);
 	
-	var tmp = createMat( imgRGB.rows, imgRGB.cols, imgRGB.channel );
-	filter2D(imgRGB, tmp, kernelDown);
+	//var tmp = createMat( imgRGB.rows, imgRGB.cols, imgRGB.channel );
+	//filter2D(imgRGB, tmp, kernelDown);
 	
 	onWebGL( imgRGB );
 	
