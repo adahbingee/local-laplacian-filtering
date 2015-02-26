@@ -67,16 +67,12 @@ Mat.prototype.getMinMax = function() {
 }
 
 Mat.prototype.normalize = function(min, max) {
-	// find min , max value
-	var meanMat = new Mat( this );
-	meanMat.data.sort();
-	var minV = meanMat.data[ Math.ceil( meanMat.total() * 0.0001 ) ];
-	var maxV = meanMat.data[ Math.ceil( meanMat.total() * 0.9999 ) ];
+	var minmax = this.getMinMax();
 	
-	var interV = maxV - minV;
+	var interV = minmax[1] - minmax[0];
 	var inter  = max - min;
 	for (var i = 0; i < this.data.length; ++i) { 
-		this.data[i] = ( (this.data[i] - minV) / interV) * inter + min;
+		this.data[i] = ( (this.data[i] - minmax[0]) / interV) * inter + min;
 	}
 	
 }
