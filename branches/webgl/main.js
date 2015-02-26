@@ -3,8 +3,8 @@ var alpha  = 0.5;       // s-curve
 var beta   = 0.0;       // linear scaler
 var sigmaR = 0.9;       // middle gray range
 var gamma  = 1.2;       // saturation
-var maxPyramidNum = 50; // pyramid number (running slow when set large value) 
-var imagepath = 'img.png';
+var maxPyramidNum = 150; // pyramid number (running slow when set large value) 
+var imagepath = 'memorial.png';
 
 // set kernel
 var kernelDown = new Mat();
@@ -68,17 +68,11 @@ function onImageLoad(){
 		imgGray.data[i] = Math.log( imgGray.data[i] + 1.0 );
 	}
 	
-	imgGray.normalize(0, 255);
-	
-	//var tmp = createMat( imgRGB.rows, imgRGB.cols, imgRGB.channel );
-	//filter2D(imgRGB, tmp, kernelDown);
-	
-	onWebGL( imgRGB );
-	
-	return;
 
 	// local laplacian pyramid using fast approach (???)
 	var means = getMeans(imgGray, maxPyramidNum);
+	glRemappingLaplacianPyramids(imgGray, means, maxLevel);
+	return;
 	var laplacianPyramids = remappingLaplacianPyramids(imgGray, means, maxLevel);
 	var result = fastLocalContrast(imgGray, means, laplacianPyramids);
 	
@@ -309,6 +303,36 @@ function getMeans(imgGray, maxPyramidNum) {
 	}
 	
 	return means;
+}
+
+function glRemappingLaplacianPyramids(imgGray, means, maxLevel) {
+	var maxPyramidNum = means.length;
+	var laplacianPyramids = new Array( maxPyramidNum );
+	for (var i = 0; i < maxPyramidNum; i+=4) {
+		var rmpArray = new Array(4);
+		rmpArray[0] = remapLuma(imgGray, means[i+0], alpha, beta, sigmaR);
+		rmpArray[1] = remapLuma(imgGray, means[i+1], alpha, beta, sigmaR);
+		rmpArray[2] = remapLuma(imgGray, means[i+2], alpha, beta, sigmaR);
+		rmpArray[3] = remapLuma(imgGray, means[i+3], alpha, beta, sigmaR);
+		var rmpMat = merge( rmpArray );
+		
+		// downsample smooth
+		var dSmooth = glFilter2D(rmpMat, kernelDown);
+		
+		// downsample
+		//var dImg = createMat(rows, cols, dSmooth.channel);
+		//for (var sy = 0, by = 0; sy < dImg.rows; sy++, by+=2) {
+		//	for (var sx = 0, bx = 0; sx < dImg.cols; sx++, bx+=2) {
+		//		dImg.set(sy, sx, dSmooth.get(by, bx));
+		//	}
+		//} // end of for
+		
+		// upsample smooth
+		
+		showImage('dSmooth'+i, dSmooth);
+		
+		// downsample halfsize
+	}
 }
 
 function remappingLaplacianPyramids(imgGray, means, maxLevel) {
